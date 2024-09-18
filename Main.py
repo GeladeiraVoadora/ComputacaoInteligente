@@ -21,9 +21,16 @@ def avaliacao(funcao, populacao):
 # Função de seleção (Roleta) função fitnes.
 def roleta (avaliacao, populacao):
     numeroIndividuos = len(populacao)
-    fitness = sum(avaliacao)
+    fitnessTotal = sum(avaliacao)
+    fitness = min(avaliacao)
+
     print(f"Fitness: {fitness}")
-    probabilidades = [ fitness/x for x in avaliacao]
+
+    probabilidades = [ fitnessTotal/x for x in avaliacao]
+
+    melhorIndividuo = populacao[probabilidades.index(max(probabilidades))]
+    
+    print(f"Melhor Indivíduo: {melhorIndividuo}")
     selecao = random.choices(populacao, weights=probabilidades, k=numeroIndividuos)
 
     return selecao
@@ -37,7 +44,7 @@ def crossover(selecao):
         pai2 = selecao[i+1]
         probCruzamento = random.random()
 
-        if probCruzamento >= 0.25:
+        if probCruzamento > 0.1:
             posicao1 = len(pai1)//2
             posicao2 = len(pai2)//2
 
@@ -66,7 +73,7 @@ def mutacao(filho):
     for gene in filho:
         probMutacao = random.random()
         geneAtual = gene
-        if probMutacao < 0.01:
+        if probMutacao <= 0.01:
             geneMutante = random.randrange(-100,100)
             geneAtual = geneMutante
 
@@ -75,28 +82,14 @@ def mutacao(filho):
     return cromossomo
 
 def algoritimoGenetico(funcao, nItens, nIndividuos, nGeracoes):
-    i = 1
     populacaoInicial = geraPopulacao(nItens,nIndividuos)
     populacao = populacaoInicial
-    while i != nGeracoes:
-        if i != nGeracoes:
-            print(f"Geração nº{i}")
-            print(populacao)
-            print('')
-            resultados = avaliacao(funcao,populacao)
-            print(resultados)
-            print('')
-            selecao = roleta(resultados, populacao)
-            print(selecao)
-            print('')
-            cruzamento = crossover(selecao)
-            print(cruzamento)
-
-            populacao = cruzamento
-
-            i =+1
-        else:
-            break
+    for i in range(nGeracoes):
+        print(f"\nGeração nº{i+1}")
+        resultados = avaliacao(funcao,populacao)
+        selecao = roleta(resultados, populacao)
+        cruzamento = crossover(selecao)
+        populacao = cruzamento
 
 if __name__ == '__main__':
-    algoritimoGenetico(funcoes.sphere, 30,30,5)
+    algoritimoGenetico(funcoes.sphere, 30,30,15000)
