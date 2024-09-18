@@ -18,18 +18,41 @@ def avaliacao(funcao, populacao):
 
     return resultados
 
+# Função torneio
+def torneio(populacao, funcao):
+    lista = []
+    listaDeFitness = avaliacao(funcao, populacao)
+    melhorFitness = min(listaDeFitness)
+    melhorIndividuo = populacao[listaDeFitness.index(melhorFitness)]
+    print(f"Melhor Indivíduo: {melhorIndividuo}\nFitness: {melhorFitness}")
+    for i in range(len(populacao)):
+        lutador1 = populacao[random.randint(0, len(populacao)-1)]
+        lutador2 = populacao[random.randint(0, len(populacao)-1)]
+
+        if lutador2 == lutador1:
+            lutador2 = populacao[random.randint(0, len(populacao)-1)]
+
+        if funcao(lutador1) < funcao(lutador2):
+            lista.append(lutador1)
+        else:
+            lista.append(lutador2)
+
+    return lista
+
 # Função de seleção (Roleta) função fitnes.
 def roleta (avaliacao, populacao):
     numeroIndividuos = len(populacao)
     fitnessTotal = sum(avaliacao)
     fitness = min(avaliacao)
 
+    print(f"Fitness Total: {fitnessTotal}")
     print(f"Fitness: {fitness}")
 
-    probabilidades = [ fitnessTotal/x for x in avaliacao]
+    probabilidades = [fitnessTotal/x for x in avaliacao]
+    print(probabilidades)
 
     melhorIndividuo = populacao[probabilidades.index(max(probabilidades))]
-    
+
     print(f"Melhor Indivíduo: {melhorIndividuo}")
     selecao = random.choices(populacao, weights=probabilidades, k=numeroIndividuos)
 
@@ -86,8 +109,8 @@ def algoritimoGenetico(funcao, nItens, nIndividuos, nGeracoes):
     populacao = populacaoInicial
     for i in range(nGeracoes):
         print(f"\nGeração nº{i+1}")
-        resultados = avaliacao(funcao,populacao)
-        selecao = roleta(resultados, populacao)
+        #resultados = avaliacao(funcao,populacao)
+        selecao = torneio(populacao, funcao)
         cruzamento = crossover(selecao)
         populacao = cruzamento
 
