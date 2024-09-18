@@ -22,8 +22,8 @@ def avaliacao(funcao, populacao):
 def roleta (avaliacao, populacao):
     numeroIndividuos = len(populacao)
     fitness = sum(avaliacao)
-    print(fitness)
-    probabilidades = [x / fitness for x in avaliacao]
+    print(f"Fitness: {fitness}")
+    probabilidades = [ fitness/x for x in avaliacao]
     selecao = random.choices(populacao, weights=probabilidades, k=numeroIndividuos)
 
     return selecao
@@ -74,19 +74,29 @@ def mutacao(filho):
 
     return cromossomo
 
-def algoritimoGenetico(funcao, nItens, nIndividuos):
-    print('')
+def algoritimoGenetico(funcao, nItens, nIndividuos, nGeracoes):
+    i = 1
+    populacaoInicial = geraPopulacao(nItens,nIndividuos)
+    populacao = populacaoInicial
+    while i != nGeracoes:
+        if i != nGeracoes:
+            print(f"Geração nº{i}")
+            print(populacao)
+            print('')
+            resultados = avaliacao(funcao,populacao)
+            print(resultados)
+            print('')
+            selecao = roleta(resultados, populacao)
+            print(selecao)
+            print('')
+            cruzamento = crossover(selecao)
+            print(cruzamento)
+
+            populacao = cruzamento
+
+            i =+1
+        else:
+            break
 
 if __name__ == '__main__':
-    print("Hello world!")
-    populacao = geraPopulacao(30,4)
-    print(populacao)
-    print('')
-    resultados = avaliacao(funcoes.sphere,populacao)
-    print(resultados)
-    print('')
-    selecao = roleta(resultados, populacao)
-    print(selecao)
-    print('')
-    cruzamento = crossover(selecao)
-    print(cruzamento)
+    algoritimoGenetico(funcoes.sphere, 30,30,5)
