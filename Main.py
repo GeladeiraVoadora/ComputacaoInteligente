@@ -1,22 +1,13 @@
 import random
-
 import funcoes
 
-#A atividade consiste em criar indivíduos com 30 genes, e selecionar os melhores indivíduos.
-#Para que sejam os melhores, eles deverão alcançar o menor valor ao serem avaliados pela sphere.
-# Os cromossomos serão valores reais(-100 a 100), e o indivídio um vetor de 30 elementos.
-
-# fazer uma função para geração da população inicial
+# Função para geração da população inicial
 def geraPopulacao(nItens, nIndividuos):
-    listaIndividuos = [[random.randrange(-100,100) for _ in range(nItens)] for _ in range(nIndividuos)]
-
-    return listaIndividuos
+    return [[int(random.uniform(-100, 100)) for _ in range(nItens)] for _ in range(nIndividuos)]
 
 # Função de avaliação dos indivíduos (funções propostas)
 def avaliacao(funcao, populacao):
-    resultados = list(map(funcao,populacao))
-
-    return resultados
+    return list(map(funcao, populacao))
 
 # Função torneio
 def torneio(populacao, funcao):
@@ -25,94 +16,57 @@ def torneio(populacao, funcao):
     melhorFitness = min(listaDeFitness)
     melhorIndividuo = populacao[listaDeFitness.index(melhorFitness)]
     print(f"Melhor Indivíduo: {melhorIndividuo}\nFitness: {melhorFitness}")
-    for i in range(len(populacao)):
-        lutador1 = populacao[random.randint(0, len(populacao)-1)]
-        lutador2 = populacao[random.randint(0, len(populacao)-1)]
 
-        if lutador2 == lutador1:
-            lutador2 = populacao[random.randint(0, len(populacao)-1)]
-
+    for _ in range(len(populacao)):
+        lutador1, lutador2 = random.sample(populacao, 2)
         if funcao(lutador1) < funcao(lutador2):
             lista.append(lutador1)
         else:
             lista.append(lutador2)
-
     return lista
 
-# Função de seleção (Roleta) função fitnes.
-def roleta (avaliacao, populacao):
-    numeroIndividuos = len(populacao)
-    fitnessTotal = sum(avaliacao)
-    fitness = min(avaliacao)
+# Função de seleção (Roleta) para seleção proporcional ao fitness
+def roleta(populacao, funcao):
+    listaDeFitness = avaliacao(funcao, populacao)
+    melhorFitness = min(listaDeFitness)
 
-    print(f"Fitness Total: {fitnessTotal}")
-    print(f"Fitness: {fitness}")
+    probabilidades = [1/x for x in listaDeFitness]
+    melhorIndividuo = populacao[listaDeFitness.index(melhorFitness)]
+    print(f"Melhor Indivíduo: {melhorIndividuo}\nFitness: {melhorFitness}")
 
-    probabilidades = [fitnessTotal/x for x in avaliacao]
-    print(probabilidades)
-
-    melhorIndividuo = populacao[probabilidades.index(max(probabilidades))]
-
-    print(f"Melhor Indivíduo: {melhorIndividuo}")
-    selecao = random.choices(populacao, weights=probabilidades, k=numeroIndividuos)
-
+    selecao = random.choices(populacao, weights=probabilidades, k=len(populacao))
     return selecao
 
 # Função de cruzamento (Crossover)
 def crossover(selecao):
-    i = 0
     novaPopulacao = []
-    for _ in range(len(selecao)//2):
-        pai1 = selecao[i]
-        pai2 = selecao[i+1]
+    i = 0
+    for _ in range(len(selecao) // 2):
+        pai1, pai2 = selecao[i], selecao[i + 1]
         probCruzamento = random.random()
 
-        if probCruzamento > 0.1:
-            posicao1 = len(pai1)//2
-            posicao2 = len(pai2)//2
+        if probCruzamento > 0.70:
+            pontoCorte = len(pai1) // 2
+            filho1 = mutacao(pai1[:pontoCorte] + pai2[pontoCorte:])
+            filho2 = mutacao(pai2[:pontoCorte] + pai1[pontoCorte:])
+        else:
+            filho1, filho2 = pai1, pai2
 
-            #primeira metade
-            primeiraMetadePai1 = pai1[:posicao1]
-            primeiraMetadePai2 = pai2[:posicao2]
-            #segunda metade
-            segundaMetadePai1 = pai1[posicao1:]
-            segundaMetadePai2 = pai2[posicao2:]
-
-            filho1 = mutacao((primeiraMetadePai1 + segundaMetadePai2))
-            filho2 = mutacao((primeiraMetadePai2 + segundaMetadePai1))
-
-            pai1 = filho1
-            pai2 = filho2
-
-        i =+2
-        pais = [pai1, pai2]
-        novaPopulacao = novaPopulacao + pais
-
+        novaPopulacao.extend([filho1, filho2])
+        i += 2
     return novaPopulacao
 
 # Função de Mutação
 def mutacao(filho):
-    cromossomo = []
-    for gene in filho:
-        probMutacao = random.random()
-        geneAtual = gene
-        if probMutacao <= 0.01:
-            geneMutante = random.randrange(-100,100)
-            geneAtual = geneMutante
+    return [int(random.uniform(-100, 100)) if random.random() < 0.01 else gene for gene in filho]
 
-        cromossomo = cromossomo + [geneAtual]
-
-    return cromossomo
-
-def algoritimoGenetico(funcao, nItens, nIndividuos, nGeracoes):
-    populacaoInicial = geraPopulacao(nItens,nIndividuos)
-    populacao = populacaoInicial
+# Função do algoritmo genético
+def algoritmoGenetico(funcao, nItens, nIndividuos, nGeracoes):
+    populacao = geraPopulacao(nItens, nIndividuos)
     for i in range(nGeracoes):
-        print(f"\nGeração nº{i+1}")
-        #resultados = avaliacao(funcao,populacao)
+        print(f"\nGeração nº {i+1}")
         selecao = torneio(populacao, funcao)
-        cruzamento = crossover(selecao)
-        populacao = cruzamento
+        populacao = crossover(selecao)
 
 if __name__ == '__main__':
-    algoritimoGenetico(funcoes.sphere, 30,30,15000)
+    algoritmoGenetico(funcoes.sphere, 30, 30, 15000)
