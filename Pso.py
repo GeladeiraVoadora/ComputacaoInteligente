@@ -13,4 +13,15 @@ class Pso:
 
     # Função para geração da população inicial
     def geraPopulacao(self):
-        return [[int(random.uniform(-100, 100)) for _ in range(self.nItens)] for _ in range(self.nParticulas)]
+        populacao = []
+        for _ in range(self.nParticulas):
+            posicao = [random.uniform(-100, 100) for _ in range(self.nDimensoes)]
+            velocidade = [random.uniform(-1, 1) for _ in range(self.nDimensoes)]
+            particula = {
+                'posicao': posicao,
+                'velocidade': velocidade,
+                'melhor_posicao': posicao[:],
+                'melhor_valor': float('inf')
+            }
+            populacao.append(particula)
+        return populacao
