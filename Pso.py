@@ -15,7 +15,7 @@ class Pso:
     def geraPopulacao(self):
         populacao = []
         for _ in range(self.nParticulas):
-            posicao = [random.uniform(-100, 100) for _ in range(self.nDimensoes)]
+            posicao = [random.randint(-100, 100) for _ in range(self.nDimensoes)]
             velocidade = [random.uniform(-1, 1) for _ in range(self.nDimensoes)]
             particula = {
                 'posicao': posicao,
@@ -38,7 +38,7 @@ class Pso:
                 velocidade_atualizada = self.w * particula['velocidade'][i] + vel_cognitiva + vel_social
                 nova_velocidade.append(velocidade_atualizada)
 
-                nova_posicao.append(particula['posicao'][i] + velocidade_atualizada)
+                nova_posicao.append(round(particula['posicao'][i] + velocidade_atualizada))
 
             particula['velocidade'] = nova_velocidade
             particula['posicao'] = nova_posicao
